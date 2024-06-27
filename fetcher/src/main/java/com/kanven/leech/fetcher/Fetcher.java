@@ -12,7 +12,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -28,8 +28,11 @@ public class Fetcher implements Closeable {
 
     private volatile boolean init = false;
 
-    public Fetcher() {
+    private final Checkpoint checkpoint = new Checkpoint();
 
+    private final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, r -> new Thread(r, "Checkpoint-Scheduled-Thread"));
+
+    public Fetcher() {
     }
 
     public synchronized void start() {
@@ -38,6 +41,7 @@ public class Fetcher implements Closeable {
             for (Pair<File, Pattern> pair : pairs) {
                 createWatch(pair);
             }
+            scheduled.scheduleAtFixedRate(() -> checkpoint.refresh(entries), 0, Configuration.getInteger(LEECH_CHECKPOINT_FLUSH_INTERVAL, 10000), TimeUnit.MILLISECONDS);
             init = true;
         }
     }
@@ -165,6 +169,7 @@ public class Fetcher implements Closeable {
         }
         Set<Pair<File, Pattern>> pairs = new HashSet<>(0);
         String[] parts = paths.split(",");
+        Map<Integer, Long> offsets = this.checkpoint.read();
         for (String part : parts) {
             part = StringUtils.trim(part);
             if (StringUtils.isBlank(part)) {
@@ -191,7 +196,14 @@ public class Fetcher implements Closeable {
                             }
                             Matcher matcher = pattern.matcher(child.getName());
                             if (matcher.matches()) {
-                                FileEntry entry = new FileEntry(parent.getPath(), child.getName(), createBulkReader(child));
+                                long offset = -1;
+                                try {
+                                    int fid = child.getCanonicalFile().hashCode();
+                                    offset = offsets.getOrDefault(fid, offset);
+                                } catch (Exception e) {
+                                    log.error("get file id occur an error:" + child.getPath(), e);
+                                }
+                                FileEntry entry = new FileEntry(parent.getPath(), child.getName(), createBulkReader(child, offset));
                                 entries.add(entry);
                             }
                         }
@@ -205,13 +217,27 @@ public class Fetcher implements Closeable {
                     if (children != null && children.length > 0) {
                         for (File child : children) {
                             if (child.isFile()) {
-                                FileEntry entry = new FileEntry(file.getPath(), child.getName(), createBulkReader(child));
+                                long offset = -1;
+                                try {
+                                    int fid = child.getCanonicalFile().hashCode();
+                                    offset = offsets.getOrDefault(fid, offset);
+                                } catch (Exception e) {
+                                    log.error("get file id occur an error:" + child.getPath(), e);
+                                }
+                                FileEntry entry = new FileEntry(file.getPath(), child.getName(), createBulkReader(child, offset));
                                 entries.add(entry);
                             }
                         }
                     }
                 } else {
-                    FileEntry entry = new FileEntry(file.getParent(), file.getName(), createBulkReader(file));
+                    long offset = -1;
+                    try {
+                        int fid = file.getCanonicalFile().hashCode();
+                        offset = offsets.getOrDefault(fid, offset);
+                    } catch (Exception e) {
+                        log.error("get file id occur an error:" + file.getPath(), e);
+                    }
+                    FileEntry entry = new FileEntry(file.getParent(), file.getName(), createBulkReader(file, offset));
                     entries.add(entry);
                     int point = name.indexOf(".");
                     String reg = name.substring(0, point) + "\\." + name.substring(point + 1);
@@ -234,9 +260,14 @@ public class Fetcher implements Closeable {
     }
 
     private BulkReader createBulkReader(File file) {
+        return createBulkReader(file, -1);
+    }
+
+    private BulkReader createBulkReader(File file, long offset) {
         return DefaultExtensionLoader.load(BulkReader.class).getExtension(Configuration.getString(LEECH_BULK_READER_NAME, "random"), new ArrayList<Object>() {{
             add(file);
             add(Configuration.getString(LEECH_CHARSET, "UTF-8"));
+            add(offset);
         }});
     }
 
@@ -251,6 +282,9 @@ public class Fetcher implements Closeable {
                 }
             });
             entries.clear();
+            if (!scheduled.isShutdown()) {
+                scheduled.shutdown();
+            }
             init = false;
         }
     }

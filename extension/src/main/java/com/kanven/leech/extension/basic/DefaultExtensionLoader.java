@@ -6,6 +6,7 @@ import com.kanven.leech.extension.ExtensionLoader;
 import com.kanven.leech.extension.ExtensionLoaderManager;
 import com.kanven.leech.extension.Scope;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;

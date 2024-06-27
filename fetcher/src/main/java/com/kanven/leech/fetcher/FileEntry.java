@@ -105,6 +105,14 @@ public final class FileEntry {
         return name;
     }
 
+    public long offset() {
+        return reader.offset();
+    }
+
+    public int fid() {
+        return reader.fid();
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -12,8 +12,8 @@ public class FileMMPBulkReader extends BulkReader {
 
     private final FileChannel channel;
 
-    public FileMMPBulkReader(File file, String charset) throws Exception {
-        super(file, charset);
+    public FileMMPBulkReader(File file, String charset,Long offset) throws Exception {
+        super(file, charset,offset);
         this.channel = this.raf.getChannel();
     }
 
