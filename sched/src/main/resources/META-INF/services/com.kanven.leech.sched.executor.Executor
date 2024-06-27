@@ -1,1 +1,2 @@
 com.kanven.leech.sched.executor.DefaultExecutor
+com.kanven.leech.sched.executor.ConsoleExecutor

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -21,20 +22,19 @@ public abstract class DirectorWatcher implements Closeable {
 
     private final Condition condition = lock.newCondition();
 
-    protected final String path;
+    protected final File file;
 
     protected final boolean recursion;
 
-    public DirectorWatcher(String path, Boolean recursion) {
-        this.path = path;
+    public DirectorWatcher(File file, Boolean recursion) {
+        this.file = file;
         this.recursion = recursion;
-        File file = new File(path);
         if (!file.exists()) {
-            throw new RuntimeException(path + " 不存在");
+            throw new RuntimeException(file.getName() + " 不存在");
         }
-        if (!file.isDirectory()) {
-            throw new RuntimeException(path + " 不是目录");
-        }
+        /*if (!file.isDirectory()) {
+            throw new RuntimeException(file.getName() + " 不是目录");
+        }*/
     }
 
     public void start() {
@@ -106,4 +106,16 @@ public abstract class DirectorWatcher implements Closeable {
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DirectorWatcher that = (DirectorWatcher) o;
+        return Objects.equals(file.getPath(), that.file.getPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(file.getPath());
+    }
 }

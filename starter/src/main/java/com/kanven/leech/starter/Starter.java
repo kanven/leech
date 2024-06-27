@@ -9,9 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 public class Starter {
 
     public static void main(String[] args) {
-        Fetcher fetcher = new Fetcher();
         ScheduleEngine<FileEntry> scheduler = new ScheduleEngine<>();
         scheduler.start();
+        Fetcher fetcher = new Fetcher();
+        fetcher.start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

@@ -64,11 +64,11 @@ public class Configuration {
 
     public final static String LEECH_CHARSET = "leech.charset";
 
-    public final static String LEECH_DIR = "leech.dir";
+    public final static String LEECH_WATCHER_PATH = "leech.watcher.path";
 
-    public final static String LEECH_DIR_WATCHER_RECURSION = "leech.dir.watcher.recursion";
+    //public final static String LEECH_DIR_WATCHER_RECURSION = "leech.dir.watcher.recursion";
 
-    public final static String LEECH_DIR_WATCHER_NAME = "leech.dir.watcher.name";
+    public final static String LEECH_DIR_WATCHER_NAME = "leech.watcher.name";
 
     public final static String LEECH_BULK_READER_NAME = "leech.bulk.reader.name";
 
@@ -81,6 +81,8 @@ public class Configuration {
     public final static String LEECH_SCHED_EXECUTOR_THREAD_MAX = "leech.sched.executor.thread.max";
 
     public final static String LEECH_EXECUTOR_MODE = "leech.executor.mode";
+
+    public final static String LEECH_SINKER_NAME = "leech.sinker.name";
 
 
 }

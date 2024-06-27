@@ -8,6 +8,6 @@ import java.io.Closeable;
 @Spi(scope = Scope.SINGLETON)
 public interface Executor<E> extends Closeable {
 
-    void execute(E entry);
+     void execute(E entry);
 
 }

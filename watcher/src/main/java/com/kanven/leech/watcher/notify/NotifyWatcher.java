@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.contentobjects.jnotify.JNotify;
 import net.contentobjects.jnotify.JNotifyListener;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,14 +30,14 @@ public class NotifyWatcher extends DirectorWatcher {
 
     private int watchId = -1;
 
-    public NotifyWatcher(String path, Boolean recursion) {
-        super(path, recursion);
+    public NotifyWatcher(File file, Boolean recursion) {
+        super(file, recursion);
     }
 
     @Override
     protected void onStart() {
         try {
-            watchId = JNotify.addWatch(path, JNotify.FILE_ANY, recursion, new JNotifyListener() {
+            watchId = JNotify.addWatch(file.getPath(), JNotify.FILE_ANY, recursion, new JNotifyListener() {
 
                 @Override
                 public void fileCreated(int watchId, String rootPath, String name) {

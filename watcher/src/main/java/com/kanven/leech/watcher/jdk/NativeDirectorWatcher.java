@@ -39,10 +39,10 @@ public class NativeDirectorWatcher extends DirectorWatcher {
     private final List<Watcher> handlers = new ArrayList<>(0);
 
 
-    public NativeDirectorWatcher(String path, boolean recursion) {
-        super(path, recursion);
-        File file = new File(path);
-        this.paths.add(Paths.get(this.path));
+    public NativeDirectorWatcher(File file, boolean recursion) {
+        super(file, recursion);
+        //File file = new File(path);
+        this.paths.add(Paths.get(file.getPath()));
         if (recursion) {
             this.paths.addAll(fetch(new ArrayList<File>() {{
                 add(file);

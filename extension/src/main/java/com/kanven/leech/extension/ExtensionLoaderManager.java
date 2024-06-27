@@ -1,7 +1,5 @@
 package com.kanven.leech.extension;
 
-import com.kanven.leech.extension.ExtensionLoader;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 

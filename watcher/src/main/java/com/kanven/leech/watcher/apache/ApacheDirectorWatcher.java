@@ -17,14 +17,14 @@ public class ApacheDirectorWatcher extends DirectorWatcher {
 
     private final DirectorListener listener = new DirectorListener();
 
-    public ApacheDirectorWatcher(String path) {
-        this(path, false);
+    public ApacheDirectorWatcher(File file) {
+        this(file, false);
     }
 
-    public ApacheDirectorWatcher(String path, boolean recursion) {
-        super(path, recursion);
+    public ApacheDirectorWatcher(File file, boolean recursion) {
+        super(file, recursion);
         this.monitor = new FileAlterationMonitor(1000L);
-        FileAlterationObserver observer = new FileAlterationObserver(new File(path));
+        FileAlterationObserver observer = new FileAlterationObserver(file);
         observer.addListener(listener);
         this.monitor.addObserver(observer);
     }

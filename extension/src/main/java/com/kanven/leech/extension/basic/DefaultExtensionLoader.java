@@ -22,7 +22,7 @@ public class DefaultExtensionLoader<T> extends AbstractExtensionLoader<T> {
         try {
             this.serviceLoader.loadExtension(loader);
         } catch (Exception e) {
-            //TODO
+            throw new Error("load " + type.getName() + " extension has an error", e);
         }
     }
 
