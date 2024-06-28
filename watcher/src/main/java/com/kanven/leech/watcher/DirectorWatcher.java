@@ -3,7 +3,6 @@ package com.kanven.leech.watcher;
 import com.kanven.leech.extension.Scope;
 import com.kanven.leech.extension.Spi;
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -32,9 +31,9 @@ public abstract class DirectorWatcher implements Closeable {
         if (!file.exists()) {
             throw new RuntimeException(file.getName() + " 不存在");
         }
-        /*if (!file.isDirectory()) {
+        if (!file.isDirectory()) {
             throw new RuntimeException(file.getName() + " 不是目录");
-        }*/
+        }
     }
 
     public void start() {

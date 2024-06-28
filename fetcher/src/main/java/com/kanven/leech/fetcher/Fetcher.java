@@ -7,6 +7,8 @@ import com.kanven.leech.watcher.DirectorWatcher;
 import com.kanven.leech.watcher.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
@@ -21,6 +23,8 @@ import static com.kanven.leech.config.Configuration.*;
 
 @Slf4j
 public class Fetcher implements Closeable {
+
+    private static final Logger logger = LoggerFactory.getLogger("LOG_WATCHER_FILE");
 
     private final CopyOnWriteArrayList<FileEntry> entries = new CopyOnWriteArrayList<>();
 
@@ -46,12 +50,18 @@ public class Fetcher implements Closeable {
         }
     }
 
+    private void log(Event event, long start) {
+        long cost = System.currentTimeMillis() - start;
+        logger.info(event.getParent().toString() + File.separator + event.getChild().toString() + " " + event.getType() + " " + cost);
+    }
+
     private void createWatch(Pair<File, Pattern> pair) {
         DirectorWatcher watcher = DefaultExtensionLoader.load(DirectorWatcher.class).getExtension(Configuration.getString(LEECH_DIR_WATCHER_NAME, "default"), new ArrayList<Object>() {{
             add(pair.left);
             add(false);
         }});
         watcher.listen(event -> {
+            long start = System.currentTimeMillis();
             boolean matched = pair.right.matcher(event.getChild().toString()).matches();
             if (event.getType() == Event.EventType.RENAME) {
                 if (matched) {
@@ -59,12 +69,14 @@ public class Fetcher implements Closeable {
                     if (!pair.right.matcher(event.getOld().toString()).matches()) {
                         //add an watch file entry
                         addNewFileEntry(event);
+                        log(event, start);
                         return;
                     }
                 } else {
                     //the new file's name not be matched but the old file's name be matched
                     if (pair.right.matcher(event.getOld().toString()).matches()) {
                         removeFileEntry(event.getParent().toString(), event.getOld().toString());
+                        log(event, start);
                         return;
                     }
                 }
@@ -97,6 +109,7 @@ public class Fetcher implements Closeable {
                     removeFileEntry(event.getParent().toString(), event.getChild().toString());
                     break;
             }
+            log(event, start);
         });
         watcher.start();
         this.watchers.add(watcher);

@@ -1,6 +1,8 @@
 package com.kanven.leech.fetcher;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
@@ -9,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class Checkpoint {
+
+    private static final Logger logger = LoggerFactory.getLogger("CHECKPOINT");
 
     private static final int CURRENT_VERSION = 1;
 
@@ -122,6 +126,7 @@ public class Checkpoint {
         } catch (Exception e) {
             log.error("write data to checkpoint has an error:" + path, e);
         }
+        logger.info("Checkpoint refresh cost:" + (System.currentTimeMillis() - timestamp) + " ms,the entry size is:" + len);
     }
 
     private List<String> getFiles() {
@@ -132,7 +137,12 @@ public class Checkpoint {
             if (files != null && files.length > 0) {
                 for (File file : files) {
                     if (file.isFile()) {
-                        names.add(file.getName());
+                        String name = file.getName();
+                        try {
+                            Long.parseLong(name);
+                            names.add(name);
+                        } catch (Exception e) {
+                        }
                     }
                 }
             }

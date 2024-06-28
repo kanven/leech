@@ -8,6 +8,8 @@ import com.kanven.leech.fetcher.FileEntry;
 import com.kanven.leech.sink.SinkData;
 import com.kanven.leech.sink.Sinker;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.kanven.leech.config.Configuration.*;
 
@@ -16,6 +18,8 @@ import java.io.IOException;
 @Slf4j
 @SpiMate(name = "default")
 public class DefaultExecutor implements Executor<FileEntry>, Listener {
+
+    private static final Logger logger = LoggerFactory.getLogger("LOG_EXECUTOR_FILE");
 
     private final Sinker sinker = DefaultExtensionLoader.load(Sinker.class).getExtension(Configuration.getString(LEECH_SINKER_NAME));
 
@@ -26,12 +30,14 @@ public class DefaultExecutor implements Executor<FileEntry>, Listener {
 
     @Override
     public void listen(Content content) {
+        long start = System.currentTimeMillis();
         SinkData.SinkDataBuilder builder = SinkData.SinkDataBuilder.getInstance();
         builder.path(content.getFile().getPath());
         builder.data(content.getLine());
         builder.offset(content.getEnd());
         sinker.sink(builder.build());
-        System.out.println(content.getLine());
+        long cost = System.currentTimeMillis() - start;
+        logger.info(content.getFile().getPath() + " " + content.getStart() + " " + content.getEnd() + " " + cost);
     }
 
     @Override

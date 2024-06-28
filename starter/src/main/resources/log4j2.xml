@@ -7,10 +7,13 @@
         <property name="LOG_FILE" value="${LOG_PATH}/application.log"/>
         <property name="SERVICE_LOGGER_FILE" value="${LOG_PATH}/info.log"/>
         <property name="LOG_ERROR_NAME_FILE" value="${LOG_PATH}/error.log"/>
+        <property name="LOG_CHECKPOINT_FILE" value="${LOG_PATH}/checkpoint.log"/>
+        <property name="LOG_WATCHER_FILE" value="${LOG_PATH}/watcher.log"/>
+        <property name="LOG_EXECUTOR_FILE" value="${LOG_PATH}/executor.log"/>
+        <property name="LOG_BULK_FILE" value="${LOG_PATH}/bulk.log"/>
         <property name="LOG_ENCODER_PATTERN"
                   value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %p %c %msg%n"/>
     </Properties>
-
 
     <Appenders>
         <Console name="STDOUT">
@@ -34,12 +37,57 @@
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </RollingFile>
+        <RollingFile name="CHECKPOINT" fileName="${LOG_CHECKPOINT_FILE}"
+                     filePattern="logs/checkout-%d{MM-dd-yyyy}-%i.gz">
+            <Layout type="PatternLayout" pattern="${LOG_ENCODER_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+        <RollingFile name="WATCHER" fileName="${LOG_WATCHER_FILE}"
+                     filePattern="logs/watcher-%d{MM-dd-yyyy}-%i.gz">
+            <Layout type="PatternLayout" pattern="${LOG_ENCODER_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+        <RollingFile name="EXECUTOR" fileName="${LOG_EXECUTOR_FILE}"
+                     filePattern="logs/executor-%d{MM-dd-yyyy}-%i.gz">
+            <Layout type="PatternLayout" pattern="${LOG_ENCODER_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
+        <RollingFile name="BULK" fileName="${LOG_BULK_FILE}"
+                     filePattern="logs/bulk-%d{MM-dd-yyyy}-%i.gz">
+            <Layout type="PatternLayout" pattern="${LOG_ENCODER_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
     </Appenders>
+
     <Loggers>
         <Root level="INFO">
             <AppenderRef ref="STDOUT"/>
             <AppenderRef ref="INFO"/>
             <AppenderRef ref="ERROR"/>
+            <AppenderRef ref="CHECKPOINT"/>
+            <AppenderRef ref="WATCHER"/>
+            <AppenderRef ref="EXECUTOR"/>
+            <AppenderRef ref="BULK"/>
         </Root>
     </Loggers>
 </Configuration>

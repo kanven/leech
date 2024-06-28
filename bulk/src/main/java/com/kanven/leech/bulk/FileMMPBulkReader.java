@@ -1,6 +1,8 @@
 package com.kanven.leech.bulk;
 
 import com.kanven.leech.extension.SpiMate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,10 +12,12 @@ import java.nio.channels.FileChannel;
 @SpiMate(name = "mmp")
 public class FileMMPBulkReader extends BulkReader {
 
+    private static final Logger logger = LoggerFactory.getLogger("LOG_BULK_FILE");
+
     private final FileChannel channel;
 
-    public FileMMPBulkReader(File file, String charset,Long offset) throws Exception {
-        super(file, charset,offset);
+    public FileMMPBulkReader(File file, String charset, Long offset) throws Exception {
+        super(file, charset, offset);
         this.channel = this.raf.getChannel();
     }
 
@@ -22,6 +26,8 @@ public class FileMMPBulkReader extends BulkReader {
         if (offset == this.size) {
             return;
         }
+        long start = System.currentTimeMillis();
+        long origin = offset;
         long delta = offset == 0 ? this.size : this.size - offset;
         int page = (int) (delta / Integer.MAX_VALUE);
         if (delta % Integer.MAX_VALUE != 0) {
@@ -66,6 +72,8 @@ public class FileMMPBulkReader extends BulkReader {
             }
         }
         this.offset += 1;
+        long cost = System.currentTimeMillis() - start;
+        logger.info(file.getPath() + " " + origin + " " + offset + " " + cost);
     }
 
 }
