@@ -80,6 +80,10 @@ public final class FileEntry {
     }
 
     public void close() {
+        if (status.isClosed()) {
+            return;
+        }
+        status.close();
         if (reader != null) {
             try {
                 reader.close();

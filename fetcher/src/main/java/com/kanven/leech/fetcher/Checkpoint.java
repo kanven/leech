@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -23,7 +24,7 @@ public class Checkpoint {
         }
     }
 
-    private final Comparator<String> comparator = (first, second) -> {
+    private static final Comparator<String> comparator = (first, second) -> {
         long f = Long.parseLong(first);
         long s = Long.parseLong(second);
         return (int) (s - f);
@@ -44,7 +45,7 @@ public class Checkpoint {
         return new HashMap<>(0);
     }
 
-    public Map<Integer, Long> parseContent(List<String> names) {
+    private Map<Integer, Long> parseContent(List<String> names) {
         for (String name : names) {
             Map<Integer, Long> checkpoints = new HashMap<>(0);
             File file = new File(CHECKPOINT_DIR + File.separator + name);
@@ -89,13 +90,16 @@ public class Checkpoint {
         }
     }
 
-
-    public void refresh(List<FileEntry> entries) {
+    /**
+     * CopyOnWriteArrayList add、remove 变更操作采用的都是写时复制（cow），所以get、iterator时是其中的一个快照（snapshot）
+     *
+     * @param entries
+     */
+    public void refresh(CopyOnWriteArrayList<FileEntry> entries) {
         if (entries == null || entries.isEmpty()) {
             return;
         }
-        List<FileEntry> snapshot = Collections.unmodifiableList(new ArrayList<>(entries));
-        int len = snapshot.size();
+        int len = entries.size();
         long timestamp = System.currentTimeMillis();
         String path = CHECKPOINT_DIR + File.separator + timestamp;
         File file = new File(path);
@@ -105,7 +109,7 @@ public class Checkpoint {
                 try (DataOutputStream dos = new DataOutputStream(output)) {
                     dos.writeInt(CURRENT_VERSION);
                     dos.writeInt(len);
-                    for (FileEntry entry : snapshot) {
+                    for (FileEntry entry : entries) {
                         dos.writeInt(entry.fid());
                         dos.writeLong(entry.offset());
                     }

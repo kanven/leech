@@ -15,13 +15,13 @@ public abstract class BulkReader implements Closeable {
 
     final File file;
 
-    final int fid;
+    private final int fid;
 
     final RandomAccessFile raf;
 
     final Charset charset;
 
-    volatile long offset = 0;
+    long offset = 0;
 
     long size = -1;
 

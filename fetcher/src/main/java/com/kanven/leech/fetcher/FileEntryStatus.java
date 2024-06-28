@@ -26,6 +26,11 @@ class FileEntryStatus {
         return compareAndSetState(PENDING, RUNNING);
     }
 
+    boolean close() {
+        boolean flag = compareAndSetState(SUSPEND, CLOSED) || compareAndSetState(PENDING, CLOSED) || compareAndSetState(RUNNING, CLOSED);
+        return flag || isClosed();
+    }
+
     boolean isSuspend() {
         return state == SUSPEND;
     }
@@ -34,8 +39,12 @@ class FileEntryStatus {
         return state == PENDING;
     }
 
-    public boolean isRunning() {
+    boolean isRunning() {
         return state == RUNNING;
+    }
+
+    boolean isClosed() {
+        return state == CLOSED;
     }
 
     private boolean compareAndSetState(int expect, int update) {
@@ -73,6 +82,8 @@ class FileEntryStatus {
      * 运行态
      */
     private static final int RUNNING = 1;
+
+    private static final int CLOSED = -2;
 
     public static void main(String[] args) {
         FileEntryStatus status = new FileEntryStatus();
