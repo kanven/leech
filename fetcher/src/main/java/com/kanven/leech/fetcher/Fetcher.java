@@ -3,6 +3,7 @@ package com.kanven.leech.fetcher;
 import com.kanven.leech.config.Configuration;
 import com.kanven.leech.bulk.*;
 import com.kanven.leech.extension.basic.DefaultExtensionLoader;
+import com.kanven.leech.fetcher.checkpoint.Checkpoint;
 import com.kanven.leech.watcher.DirectorWatcher;
 import com.kanven.leech.watcher.Event;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +33,9 @@ public class Fetcher implements Closeable {
 
     private volatile boolean init = false;
 
-    private final Checkpoint checkpoint = new Checkpoint();
+    private final Checkpoint checkpoint = DefaultExtensionLoader.load(Checkpoint.class).getExtension(Configuration.getString(LEECH_CHECKPOINT_NAME, "block"));
 
-    private final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, r -> new Thread(r, "Checkpoint-Scheduled-Thread"));
+    private final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, r -> new Thread(r, "RandomCheckpoint-Scheduled-Thread"));
 
     public Fetcher() {
     }

@@ -86,5 +86,7 @@ public class Configuration {
 
     public final static String LEECH_CHECKPOINT_FLUSH_INTERVAL = "leech.checkpoint.flush.interval";
 
+    public final static String LEECH_CHECKPOINT_NAME = "leech.checkpoint.name";
+
 
 }
